@@ -115,6 +115,3 @@ The API uses standard HTTP status codes and returns error messages in JSON forma
 4. Push to branch
 5. Create Pull Request
 
-## License
-
-MIT License
