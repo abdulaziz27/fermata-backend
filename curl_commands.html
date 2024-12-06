@@ -1,0 +1,73 @@
+<!-- 
+
+// Curl Commands for Fermata API Backend
+// Run curl commands in terminal
+// Just Delete it if don't need it, it's for Running in Terminal
+
+Test Port:
+curl http://localhost:4000/api/users/test
+
+
+Register User:
+curl -X POST http://localhost:4000/api/users/register \
+-H "Content-Type: application/json" \
+-d '{
+  "name": "Test Fermata",
+  "email": "test@gmail.com",
+  "password": "123456",
+  "role": "student"
+}' 
+
+Login User:
+curl -X POST http://localhost:4000/api/users/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "test@gmail.com",
+  "password": "123456"
+}'
+
+
+Get Profile (need token):
+curl -X GET http://localhost:4000/api/users/profile \
+-H "Authorization: Bearer YOUR_TOKEN_HERE"
+
+Update Profile (need token):
+curl -X PUT http://localhost:4000/api/users/profile \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_TOKEN_HERE" \
+-d '{
+  "name": "Updated Name",
+  "parent": {
+    "name": "Parent Name",
+    "phone": "123456789",
+    "address": "Jakarta"
+  }
+}'
+
+Get All Users (admin only, need token):
+curl -X GET http://localhost:4000/api/users \
+-H "Authorization: Bearer YOUR_TOKEN_HERE"
+
+
+curl -X POST http://localhost:4000/api/users/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "admin@fermata.com",
+  "password": "123456"
+}'
+
+Create Package (admin only, need token):
+curl -v -X POST http://localhost:4000/api/packages \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NGY3NDYzYTM5NTZmMmNkNmU0YWQ3NSIsImlhdCI6MTczMzI2Mjk0OCwiZXhwIjoxNzM1ODU0OTQ4fQ.1Rr4V5lFtlAQpzYcQCcXFzK8pRpl_s49T0fDZzbhgLM" \
+-d '{
+  "name": "Piano Basic Package",
+  "description": "Basic piano course for beginners",
+  "duration": 60,
+  "price": 1500000,
+  "courseType": "Piano",
+  "sessionCount": 12,
+  "teachingMethod": "Offline"
+}'
+
+ -->
