@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { registerUser, loginUser } = require("../controllers/authController");
+const {
+  registerUser,
+  loginUser,
+  logout,
+} = require("../controllers/authController");
 const { protect, admin } = require("../middleware/authMiddleware");
 const {
   getProfile,
@@ -25,5 +29,8 @@ router.put("/profile", protect, asyncHandler(updateProfile));
 // Admin routes
 router.get("/", protect, admin, asyncHandler(getUsers));
 router.delete("/:id", protect, admin, asyncHandler(deleteUser));
+
+// Logout
+router.post("/logout", protect, asyncHandler(logout));
 
 module.exports = router;

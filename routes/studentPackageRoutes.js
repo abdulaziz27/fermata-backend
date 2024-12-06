@@ -10,6 +10,7 @@ const {
   getTeacherSchedules,
   updateAttendance,
   getStudentSchedules,
+  addSchedule,
 } = require("../controllers/studentPackageController");
 
 // Error handler wrapper
@@ -33,6 +34,13 @@ router.delete(
   protect,
   admin,
   asyncHandler(deleteStudentPackage)
+);
+
+router.post(
+  "/:studentPackageId/schedules",
+  protect,
+  admin,
+  asyncHandler(addSchedule)
 );
 
 // Teacher routes

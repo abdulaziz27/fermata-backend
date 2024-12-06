@@ -128,9 +128,13 @@ const updateAttendance = async (req, res) => {
     const { attendance_status, activity_photo, note } = req.body;
 
     if (
-      !["Success", "Murid Izin", "Guru Izin", "Reschedule"].includes(
-        attendance_status
-      )
+      ![
+        "Belum Berlangsung",
+        "Success",
+        "Murid Izin",
+        "Guru Izin",
+        "Reschedule",
+      ].includes(attendance_status)
     ) {
       return res.status(400).json({
         success: false,
@@ -170,6 +174,49 @@ const updateAttendance = async (req, res) => {
     res.status(200).json({
       success: true,
       data: schedule,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Add schedule to existing student package (Admin only)
+const addSchedule = async (req, res) => {
+  try {
+    const { studentPackageId } = req.params;
+    const { teacher_id, date, time, transport_fee, teacher_fee, room } =
+      req.body;
+
+    const studentPackage = await StudentPackage.findById(studentPackageId);
+    if (!studentPackage) {
+      return res.status(404).json({
+        success: false,
+        message: "Student package not found",
+      });
+    }
+
+    // Add new sched
+    const newSchedule = {
+      teacher_id,
+      date,
+      time,
+      transport_fee,
+      teacher_fee,
+      room,
+      attendance_status: "Belum Berlangsung",
+    };
+
+    // Add schedule to array schedules
+    studentPackage.schedules.push(newSchedule);
+    await studentPackage.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Schedule added successfully",
+      data: studentPackage,
     });
   } catch (error) {
     res.status(400).json({
@@ -303,4 +350,5 @@ module.exports = {
   updateSchedule,
   deleteStudentPackage,
   deleteSchedule,
+  addSchedule,
 };

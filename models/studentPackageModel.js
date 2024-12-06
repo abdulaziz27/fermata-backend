@@ -24,7 +24,13 @@ const scheduleSchema = new mongoose.Schema({
   },
   attendance_status: {
     type: String,
-    enum: ["Success", "Murid Izin", "Guru Izin", "Reschedule"],
+    enum: [
+      "Belum Berlangsung",
+      "Success",
+      "Murid Izin",
+      "Guru Izin",
+      "Reschedule",
+    ],
   },
   room: {
     type: String,
