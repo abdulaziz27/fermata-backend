@@ -1,4 +1,3 @@
-// controllers/packageController.js
 const Package = require("../models/packageModel");
 
 // Get all packages
