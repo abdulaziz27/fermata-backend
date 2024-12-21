@@ -1,5 +1,7 @@
 const SalarySlip = require("../models/salarySlipModel");
 const StudentPackage = require("../models/studentPackageModel");
+const User = require("../models/userModel");
+const PDFDocument = require("pdfkit");
 
 // Get all salary slips (Admin only)
 const getAllSalarySlips = async (req, res) => {
@@ -117,8 +119,125 @@ const updateSalarySlip = async (
   await salarySlip.save();
 };
 
+// Download salary slip as PDF (Admin only)
+const downloadSalarySlipPDF = async (req, res) => {
+  try {
+    const { teacherId, month, year } = req.params;
+    const salarySlip = await SalarySlip.findOne({
+      teacher_id: teacherId,
+      month: parseInt(month),
+      year: parseInt(year),
+    }).populate("teacher_id", "name");
+
+    if (!salarySlip) {
+      return res.status(404).json({
+        success: false,
+        message: "Salary slip not found",
+      });
+    }
+
+    const teacher = await User.findById(teacherId);
+
+    const doc = new PDFDocument({ margin: 50 });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=salary_slip_${teacher.name}_${month}_${year}.pdf`
+    );
+
+    doc.pipe(res);
+
+    doc.fontSize(24).text("Slip Gaji", { align: "center" });
+    doc.moveDown();
+
+    doc.fontSize(14).text(`Nama: ${teacher.name}`, { align: "left" });
+    doc.text(`Bulan: ${month}/${year}`, { align: "left" });
+    doc.text(
+      `Total Gaji: Rp.${salarySlip.total_salary.toLocaleString("id-ID")}`,
+      { align: "left" }
+    );
+    doc.moveDown();
+
+    const tableTop = 200;
+    const tableLeft = 20;
+    const columnWidths = [70, 80, 80, 60, 70, 70, 70, 70];
+    const headers = [
+      "Date",
+      "Student",
+      "Instrument",
+      "Room",
+      "Status",
+      "Class Fee",
+      "Transport",
+      "Total",
+    ];
+
+    doc.font("Helvetica-Bold");
+    let xPosition = tableLeft;
+    headers.forEach((header, i) => {
+      doc.text(header, xPosition, tableTop, {
+        width: columnWidths[i],
+        align: "center",
+      });
+      xPosition += columnWidths[i];
+    });
+
+    doc.font("Helvetica");
+    let yPosition = tableTop + 25;
+
+    salarySlip.details.forEach((detail, index) => {
+      if (yPosition > 700) {
+        doc.addPage();
+        yPosition = 50;
+      }
+
+      xPosition = tableLeft;
+      [
+        detail.date.toLocaleDateString(),
+        detail.student_name,
+        detail.instrument,
+        detail.room,
+        detail.attendance_status,
+        `${detail.fee_class.toLocaleString("id-ID")}`,
+        `${detail.fee_transport.toLocaleString("id-ID")}`,
+        `${detail.total_fee.toLocaleString("id-ID")}`,
+      ].forEach((text, i) => {
+        doc.text(text, xPosition, yPosition, {
+          width: columnWidths[i],
+          align: "center",
+        });
+        xPosition += columnWidths[i];
+      });
+
+      yPosition += 20;
+    });
+
+    doc.lineWidth(1);
+    doc
+      .moveTo(tableLeft, tableTop)
+      .lineTo(tableLeft + columnWidths.reduce((a, b) => a + b, 0), tableTop)
+      .stroke();
+    doc
+      .moveTo(tableLeft, tableTop + 20)
+      .lineTo(
+        tableLeft + columnWidths.reduce((a, b) => a + b, 0),
+        tableTop + 20
+      )
+      .stroke();
+
+    doc.end();
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getAllSalarySlips,
   getTeacherSalarySlip,
   updateSalarySlip,
+  downloadSalarySlipPDF,
 };
